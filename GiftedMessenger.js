@@ -428,18 +428,27 @@ var GiftedMessenger = React.createClass({
   },
 
   deleteMessage(rowID = null) {
-    //find indices to remove
-    var id_index = this._rowIds.indexOf(rowID);
+    //avoid trouble
+    // Array Remove - By John Resig (MIT Licensed)
+    Array.prototype.remove = function(from, to) {
+      var rest = this.slice((to || from) + 1 || this.length);
+      this.length = from < 0 ? this.length + from : from;
+      return this.push.apply(this, rest);
+    };
 
-    if(id_index !== -1){
-      //remove the indices
-      this._rowIds.splice (id_index, 1);
-      this._data.splice (this._data.length-id_index, 1);
+    if(rowID != null){
+      //remove message in new copy
+      var newData = this._data;
+      newData.remove(rowID);
 
-      //update state
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(this._data, this._rowIds)
-      });
+      //reset messages
+      this._rowIds = [];
+      this._data = [];
+
+      //re-add messages properly
+      if(newData){
+        this.appendMessages(newData);
+      }
     }
   },
 
